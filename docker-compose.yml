@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${BACKEND_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${BACKEND_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${BACKEND_POSTGRES_DB}
+    ports:
+      - "${BACKEND_POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+networks:
+  internal:
+    driver: bridge
