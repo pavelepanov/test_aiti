@@ -9,8 +9,8 @@ from test_aiti.models.order_item import OrderItem
 class OrderItemDataGateway(Protocol):
     @abstractmethod
     async def read_from_order(
-        order_id: OrderId, nomenclature_id: NomenclatureId
+        self, order_id: OrderId, nomenclature_id: NomenclatureId
     ) -> OrderItem | None: ...
 
     @abstractmethod
-    async def add(order_item: OrderItem) -> None: ...
+    async def add(self, order_item: OrderItem) -> None: ...
