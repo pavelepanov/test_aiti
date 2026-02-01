@@ -54,6 +54,12 @@ class AddProductToOrderInteractor:
         self._order_item_id_generator = order_item_id_generator
 
     async def __call__(self, request: AddProductToOrderRequest) -> None:
+        """
+        Raises:
+            NomenclatureDoesNotExistError
+            NotEnoughStockInStockError
+            OrderDoesNotExistError
+        """
         nomenclature: (
             Nomenclature | None
         ) = await self._nomenclature_data_gateway.read_by_id(request.nomenclature_id)

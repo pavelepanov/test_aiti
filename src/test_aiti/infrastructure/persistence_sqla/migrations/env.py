@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from test_aiti.entrypoint.config import PostgresConfig
-from test_aiti.infrastructure.persistence_sqla.map import map_tables
+from test_aiti.infrastructure.persistence_sqla.mappings.map import map_tables
 from test_aiti.infrastructure.persistence_sqla.orm_registry import mapping_registry
 
 # this is the Alembic Config object, which provides

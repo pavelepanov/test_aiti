@@ -1,12 +1,19 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "test-aiti"
+name = "test_aiti"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.3",
+    "dishka>=1.7.2",
     "dotenv>=0.9.9",
+    "fastapi[standard]>=0.128.0",
+    "gunicorn>=24.1.1",
     "psycopg[binary]>=3.3.2",
     "sqlalchemy[asyncio]>=2.0.46",
 ]
@@ -25,3 +32,9 @@ line-length = 88
 select = [
     "I",  
 ]
+
+[tool.setuptools]
+packages = ["test_aiti"]
+
+[tool.setuptools.package-dir]
+"" = "src"

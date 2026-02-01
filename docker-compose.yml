@@ -1,7 +1,30 @@
 services:
+  backend:
+    container_name: backend
+    env_file:
+      - ${ENV_FILE:-.env}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:${BACKEND_PORT}"
+    networks:
+      - custom
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: ${BACKEND_POSTGRES_HOST}
+      POSTGRES_PORT: ${BACKEND_POSTGRES_PORT}
+      POSTGRES_DB: ${BACKEND_POSTGRES_DB}
+      POSTGRES_USER: ${BACKEND_POSTGRES_USER}
+      POSTGRES_PASS: ${BACKEND_POSTGRES_PASSWORD}
+    command: "gunicorn -c conf/gunicorn.conf.py 'test_aiti.run:make_app()'"
+    
   postgres:
     image: postgres:16-alpine
-    restart: always
+    env_file:
+      - ${ENV_FILE:-.env}
     environment:
       - POSTGRES_USER=${BACKEND_POSTGRES_USER}
       - POSTGRES_PASSWORD=${BACKEND_POSTGRES_PASSWORD}
@@ -10,10 +33,17 @@ services:
       - "${BACKEND_POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${BACKEND_POSTGRES_USER} -d ${BACKEND_POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - custom
 
 volumes:
   postgres_data:
 
 networks:
-  internal:
+  custom:
     driver: bridge
