@@ -118,3 +118,72 @@ Adds a product to an order. If the product is already in the order, its quantity
 ├── Dockerfile            # Docker build instructions for the backend
 └── pyproject.toml        # Project metadata and dependencies (PEP 621)
 ```
+
+
+# SQL tasks
+2.1 
+```
+SELECT 
+	c.title AS client_name,
+	SUM(oi.quantity * oi.price_at_purchase) AS total_spent
+FROM
+	clients c
+LEFT JOIN
+	orders o ON c.id = o.client_id
+LEFT JOIN
+	order_items oi ON o.id = oi.order_id
+GROUP BY
+	c.id, c.title
+ORDER BY
+	total_spent DESC;
+```
+
+2.2
+```
+SELECT 
+	parent.title AS category_name,
+	COUNT(child.id) as subcategories_count
+FROM
+	categories parent
+LEFT JOIN
+	categories child ON child.parent_id = parent.id
+GROUP BY
+	parent.id, parent.title
+```
+
+2.3.1
+```
+CREATE OR REPLACE VIEW top_selling_items_last_month AS
+WITH RECURSIVE category_root AS (
+	SELECT id, id AS root_id, title AS root_title
+	FROM categories
+	WHERE parent_id IS NULL
+UNION ALL
+SELECT c.id, cr.root_id, cr.root_title
+FROM categories c
+JOIN category_root cr ON c.parent_id = cr.id
+)
+SELECT n.title AS product_name, cr.root_title AS root_category_name, SUM(oi.quantity) AS total_quantity_sold
+FROM order_items oi
+JOIN
+	orders o ON oi.order_id = o.id
+JOIN
+	nomenclatures n ON oi.nomenclature_id = n.id
+LEFT JOIN
+	category_root cr ON n.category_id = cr.id
+WHERE 
+	date_trunc('month', o.created_at) = date_trunc('month', NOW())
+GROUP BY
+	n.id, n.title, cr.root_title
+ORDER BY
+	total_quantity_sold DESC
+LIMIT 5;
+```
+
+2.3.2
+- Рекурсия по дереву категорий - дорого если дерево большое
+- Агрегация quantity - много данных, большой скан
+- Фильтрация по дате требует индекса
+- Объединение 4 таблиц, где order_items огромная
+- Стоит добавить отдельное поле с root_category в categories
+- Партиционирование по месяцам 
